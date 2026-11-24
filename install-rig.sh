@@ -11,7 +11,7 @@
 #   - Remotes bridge         :8049   (sonor-remotes)
 #   - Rig home page          :80     (status, links, update button)
 set -euo pipefail
-RIG_VERSION=1.0.0
+RIG_VERSION=1.0.1
 BASE=/opt/sonor-rig
 CFG=/etc/sonor-rig
 BRANCH=main
@@ -28,6 +28,9 @@ if ! command -v node >/dev/null || [ "$(node -e 'console.log(process.versions.no
   apt-get install -y -qq nodejs >/dev/null || true
 fi
 command -v node >/dev/null || { echo "Node.js 18+ could not be installed"; exit 1; }
+# Network Scanner Traffic tab: live capture with tshark (dumpcap runs with capabilities; the service user joins the wireshark group)
+echo "wireshark-common wireshark-common/install-setuid boolean true" | debconf-set-selections
+DEBIAN_FRONTEND=noninteractive apt-get install -y -qq tshark tcpdump >/dev/null || echo "tshark could not be installed: the Traffic tab falls back to tcpdump"
 
 say "Config"
 mkdir -p "$CFG" "$BASE"
@@ -71,6 +74,8 @@ fetch() { # $1 repo  → $BASE/$1 (keeps that app's own data/config files)
 for a in "${APPS[@]}"; do fetch "${a%%:*}"; done
 fetch sonor-site-rig
 id -u sonorrig >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin sonorrig
+getent group wireshark >/dev/null 2>&1 && usermod -aG wireshark sonorrig
+DC=$(command -v dumpcap || true); [ -n "$DC" ] && setcap cap_net_raw,cap_net_admin=eip "$DC" 2>/dev/null || true
 chown -R sonorrig:sonorrig "$BASE"
 
 unit() { # name port dir entry extra-env

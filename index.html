@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en" data-theme="graphite">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Site Rig · Sonor</title><meta name="theme-color" content="#1C1C1E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#1C1C1E; --card:#242426; --card2:#2C2C2E; --edge:#3A3A3C; --text:#F5F5F7; --label:#8E8E93; --dim:#636366; --gold:#ad9978; --gold2:#d9c7a1; --ok:#2fbf71; --warn:#e3a72f; --bad:#e5484d;
+  --s-network:#b7b1a7; --s-video:#78ba57; --s-audio:#4bb9d3; --s-control:#e67eb1; --mono:"DM Mono",ui-monospace,Menlo,monospace; color-scheme:dark; }
+* { box-sizing:border-box } body { margin:0; background:radial-gradient(1400px 700px at 85% -20%,#2b2824 0,transparent 60%),var(--bg); color:var(--text); font:15px/1.55 "DM Sans",system-ui,sans-serif; }
+.site-hdr { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:14px; padding:14px 22px; background:rgba(28,28,30,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--edge); }
+.site-hdr b { letter-spacing:.32em; font-weight:600 } .hdr-tag { font:500 11px var(--mono); letter-spacing:.2em; text-transform:uppercase; color:var(--gold); border-left:1px solid var(--edge); padding-left:14px }
+.site-hdr .v { margin-left:auto; font:11px var(--mono); color:var(--label) }
+.hero { max-width:1100px; margin:0 auto; padding:34px 22px 10px } .hero h1 { margin:0; font-size:30px; font-weight:600; letter-spacing:-.01em } .hero p { color:var(--label); max-width:760px; margin:8px 0 0 }
+.tabs { max-width:1100px; margin:18px auto 0; padding:0 22px; display:flex; gap:8px; flex-wrap:wrap }
+.tabs button { font:500 11.5px var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--label); background:var(--card); border:1px solid var(--edge); border-radius:99px; padding:9px 16px; cursor:pointer }
+.tabs button .n { color:var(--gold); margin-right:8px } .tabs button.on { color:var(--text); border-color:var(--gold); background:linear-gradient(160deg,#302c27,#26241f) }
+main { max-width:1100px; margin:0 auto; padding:18px 22px 60px } section.view[hidden] { display:none }
+.step { margin:26px 0 } .step h2 { display:flex; align-items:center; gap:12px; font-size:19px; margin:0 0 10px } .step h2 .num { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font:600 13px var(--mono); color:#1c1c1e; background:linear-gradient(135deg,var(--gold2),var(--gold)) }
+.panel { background:var(--card); border:1px solid var(--edge); border-radius:10px; padding:16px 18px } .note { color:var(--label); font-size:13.5px } .note b { color:var(--text) }
+.lbl { font:500 10.5px var(--mono); letter-spacing:.18em; text-transform:uppercase; color:var(--label) }
+.boards { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px } .board { background:linear-gradient(160deg,#2c2a27,#222); border:1px solid #4a4339; border-radius:14px; padding:14px 16px; cursor:pointer }
+.board.on { border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset } .board h3 { margin:0 0 4px; font-size:16px } .board .p { font:500 13px var(--mono); color:var(--gold2) }
+table { width:100%; border-collapse:collapse } th { text-align:left; font:500 10px var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--label); padding:8px; border-bottom:1px solid var(--edge) } td { padding:9px 8px; border-bottom:1px solid #2f2f31; vertical-align:top } td.r, th.r { text-align:right; font-family:var(--mono) }
+tr.opt td { color:var(--label) } tfoot td { font-weight:600; border-bottom:0 } a { color:var(--gold2) }
+.cmd { display:flex; gap:8px; align-items:stretch; margin:10px 0 } .cmd code { flex:1; font:13px/1.5 var(--mono); background:#141416; border:1px solid var(--edge); border-radius:8px; padding:12px 14px; overflow-x:auto; white-space:nowrap; color:#e9e2d4 }
+button.btn, a.btn { font:500 11px var(--mono); letter-spacing:.14em; text-transform:uppercase; color:#1c1c1e; background:linear-gradient(135deg,var(--gold2),var(--gold)); border:0; border-radius:8px; padding:10px 16px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center }
+button.ghost { background:var(--card2); color:var(--text); border:1px solid var(--edge) }
+.kv { display:grid; grid-template-columns:200px 1fr; gap:6px 16px; font-size:14px } .kv div:nth-child(odd) { color:var(--label) } .kv code { font-family:var(--mono) }
+.schem { background:#141416; border:1px solid var(--edge); border-radius:10px; padding:10px } .schem svg { width:100%; height:auto; display:block }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px } @media (max-width:760px) { .grid2 { grid-template-columns:1fr } .kv { grid-template-columns:1fr } .hero h1 { font-size:24px } }
+.preview-wrap { border:1px solid var(--edge); border-radius:14px; overflow:hidden; background:#000 } .preview-wrap iframe { width:100%; height:640px; border:0; display:block }
+.chk li { margin:6px 0 } .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--card2); border:1px solid var(--edge); padding:10px 14px; border-radius:10px; opacity:0; transition:opacity .2s; pointer-events:none } .toast.show { opacity:1 }
+</style>
+</head>
+<body>
+<div class="site-hdr"><svg width="28" height="28" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9c7a1"/><stop offset="1" stop-color="#8a7658"/></linearGradient></defs><g fill="url(#g)"><path d="M92.02,38.41v51.4c0,2.63-2.13,4.75-4.75,4.75h-3.34c-2.62,0-4.75-2.12-4.75-4.75v-45.34c0-2.45-1.11-4.77-3.01-6.31l-25.23-20.41c-2.8-2.27-6.76-2.42-9.73-.36l-23.15,16.05.45,1.55c22.38,9.5,40.47,30.05,47.71,53.39.95,3.06-1.32,6.18-4.53,6.18h-5.36c-2.08,0-3.9-1.37-4.54-3.35-6.96-21.83-24.83-38.23-46.17-46.13-1.31-.49-2.31-1.5-2.79-2.75-.2-.51-.31-1.06-.32-1.64l-.12-9.11c-.02-1.58.75-3.06,2.05-3.96L28.74,10.74,42.11,1.45c.16-.11.32-.22.49-.31,2.35-1.4,5.22-1.5,7.64-.34.57.26,1.12.61,1.63,1.03l37.16,30.29c1.89,1.54,2.99,3.85,2.99,6.29Z"/><path d="M34.59,94.55h-5.25c-1.6,0-3.09-.81-3.97-2.15-5.47-8.37-11.98-15.35-20.72-20.32-1.5-.85-2.45-2.42-2.45-4.15v-5.58c0-3.52,3.68-5.79,6.85-4.26,12.79,6.15,23.95,16.91,29.85,29.73,1.45,3.14-.86,6.73-4.32,6.73h0Z"/><path d="M4.26,83.39c7.65-1.71,9.39,9.06,4.03,10.83-8.9,2.94-11.25-9.22-4.03-10.83Z"/></g></svg><b>SONOR</b><span class="hdr-tag">Site Rig</span><span class="v" id="ver"></span></div>
+<div class="hero"><h1>The site rig, built from this page</h1><p>A Raspberry Pi that lives in the van. Plug its Ethernet into the site switch, join its Wi-Fi on the tablet, and the tablet gets the <b>Network Scanner</b> and <b>Remotes</b> running on the site LAN, with no laptop. Everything below, from parts to the one-line install, is on this page.</p></div>
+<div class="tabs" id="tabs"><button data-v="build" class="on"><span class="n">01</span>Build &amp; install</button><button data-v="page"><span class="n">02</span>Rig page preview</button><button data-v="notes"><span class="n">03</span>Limits &amp; notes</button></div>
+<main>
+<section class="view" id="v-build">
+  <div class="step"><h2><span class="num">1</span>Pick your Pi</h2>
+    <div class="boards" id="boards"></div></div>
+  <div class="step"><h2><span class="num">2</span>Shopping list</h2>
+    <div class="panel"><table id="parts"></table><p class="note" style="margin:10px 0 0">Prices are typical UK retail (Nov 2026), inc. VAT. Greyed lines are optional add-ons for later (serial, KVM).</p></div></div>
+  <div class="step"><h2><span class="num">3</span>Flash the card</h2>
+    <div class="grid2">
+      <div class="panel"><p style="margin-top:0">Install <b>Raspberry Pi Imager</b> on the Mac, put the card in, and choose:</p>
+        <div class="kv"><div>Device</div><div id="imgDev">Raspberry Pi 5</div><div>OS</div><div>Raspberry Pi OS (other) → <b>Raspberry Pi OS Lite (64-bit)</b></div><div>Storage</div><div>the card</div></div>
+        <p style="margin-bottom:0"><a class="btn" href="https://www.raspberrypi.com/software/" target="_blank" rel="noopener">Download Pi Imager</a></p></div>
+      <div class="panel"><p style="margin-top:0">Then <b>Edit settings</b> (OS customisation) before writing:</p>
+        <div class="kv"><div>Hostname</div><div><code id="hn">sonor-rig-01</code></div><div>Username</div><div><code>sonor</code> and a password you keep in the password manager</div><div>Wireless LAN</div><div>the <b>office</b> Wi-Fi, for the first install only (the rig makes its own hotspot after)</div><div>Locale</div><div>Europe/London, keyboard gb</div><div>Services</div><div>Enable SSH, password authentication</div></div></div>
+    </div></div>
+  <div class="step"><h2><span class="num">4</span>Install with one line</h2>
+    <div class="panel"><p style="margin-top:0">Boot the Pi in the office (Ethernet or office Wi-Fi), then from the Mac Terminal: <code>ssh sonor@<span class="hn2">sonor-rig-01</span>.local</code> and paste:</p>
+      <div class="cmd"><code id="oneLine"></code><button class="btn" id="copyLine">Copy</button></div>
+      <p class="note">About 3 to 6 minutes. It installs Node.js, makes the hotspot, downloads the Network Scanner and Remotes, starts them on every boot and prints the hotspot name and password at the end: <b>write them on the rig's label</b>. Running the same line again later updates everything and keeps the settings (or press <b>Update</b> on the rig page).</p></div></div>
+  <div class="step"><h2><span class="num">5</span>Wire it</h2>
+    <div class="grid2"><div class="schem"><svg viewBox="0 0 520 230" font-family="DM Mono, monospace" font-size="11">
+      <rect x="190" y="70" width="140" height="90" rx="10" fill="#2c2a27" stroke="#ad9978"/><text x="260" y="112" fill="#f5f5f7" text-anchor="middle" font-size="13">Site Rig</text><text x="260" y="130" fill="#8E8E93" text-anchor="middle">Raspberry Pi</text>
+      <rect x="20" y="85" width="110" height="60" rx="8" fill="#242426" stroke="#b7b1a7"/><text x="75" y="112" fill="#f5f5f7" text-anchor="middle">Site switch</text><text x="75" y="128" fill="#8E8E93" text-anchor="middle">any free port</text>
+      <line x1="130" y1="115" x2="190" y2="115" stroke="#b7b1a7" stroke-width="3"/><text x="160" y="106" fill="#b7b1a7" text-anchor="middle">eth0</text>
+      <rect x="390" y="85" width="110" height="60" rx="8" fill="#242426" stroke="#ad9978"/><text x="445" y="112" fill="#f5f5f7" text-anchor="middle">Tablet</text><text x="445" y="128" fill="#8E8E93" text-anchor="middle">Site Tools</text>
+      <path d="M330 115 C 350 95, 370 95, 390 115" stroke="#ad9978" stroke-width="2" fill="none" stroke-dasharray="5 4"/><text x="360" y="88" fill="#ad9978" text-anchor="middle">Wi-Fi SONOR-RIG</text>
+      <rect x="215" y="185" width="90" height="30" rx="6" fill="#242426" stroke="#3A3A3C"/><text x="260" y="204" fill="#8E8E93" text-anchor="middle">27 W USB-C</text><line x1="260" y1="160" x2="260" y2="185" stroke="#3A3A3C" stroke-width="2"/>
+      <text x="260" y="40" fill="#8E8E93" text-anchor="middle">rig = 10.77.0.1 on its hotspot · DHCP client on the site LAN</text></svg></div>
+      <div class="panel"><table><thead><tr><th>Port</th><th>Goes to</th><th>Why</th></tr></thead><tbody>
+        <tr><td>Ethernet (eth0)</td><td>Site switch, any port on the main VLAN</td><td>The rig scans and controls from inside the site LAN</td></tr>
+        <tr><td>Wi-Fi (wlan0)</td><td>Its own hotspot, <code>SONOR-RIG-xxxx</code></td><td>The tablet joins it; internet passes through from eth0</td></tr>
+        <tr><td>USB-C</td><td>27 W Pi PSU or a USB-C PD power bank</td><td>Under-powered Pis drop Wi-Fi</td></tr>
+        <tr class="opt"><td>USB-A</td><td>USB-RS232 lead, CH9329 KVM (later)</td><td>Serial control and keyboard / mouse injection (Engineer Toolkit)</td></tr></tbody></table>
+        <p class="note">For another VLAN, plug into that VLAN's port, or add its subnet in the Scanner's box. The rig never routes the site LAN to the hotspot's clients except for internet.</p></div></div></div>
+  <div class="step"><h2><span class="num">6</span>Pair the tablet</h2>
+    <div class="panel"><ol class="chk"><li>On the tablet, join the rig's Wi-Fi (name and password from the label). Android will say "no internet" if the site has none: choose <b>Stay connected</b>.</li>
+      <li>Open <b>Site Tools</b>, then the <b>Site Rig</b> bookmark, or go to <code>http://10.77.0.1</code>.</li>
+      <li>The rig page shows the site LAN address, internet, and a tile for each tool. Tap <b>Network Scanner</b> or <b>Remotes</b>.</li></ol></div></div>
+  <div class="step"><h2><span class="num">7</span>Test it</h2>
+    <div class="panel"><ol class="chk"><li>Rig page: <b>Site LAN</b> shows an address (green). If it says "not plugged in", check the cable and the switch port.</li>
+      <li>Network Scanner → <b>Scan network</b>: the router and switch appear within a minute; the glance bar shows WAN, DNS and DHCP.</li>
+      <li>Remotes → <b>Find devices</b>: TVs and receivers on the LAN appear as cards.</li>
+      <li>Rig page → <b>Update the rig</b>: comes back in about two minutes on the same version or newer.</li></ol></div></div>
+</section>
+<section class="view" id="v-page" hidden>
+  <p class="note">What the tablet sees at <code>http://10.77.0.1</code> (sample data).</p>
+  <div class="preview-wrap"><iframe id="pv" title="Rig page preview" loading="lazy"></iframe></div>
+</section>
+<section class="view" id="v-notes" hidden>
+  <div class="step"><h2><span class="num">!</span>Limits</h2><div class="panel"><ul class="chk">
+    <li><b>One LAN at a time.</b> The rig sees the VLAN its cable is on. Other subnets are reachable only if the site routes to them.</li>
+    <li><b>Hotspot range</b> is a room or two (the Pi's antenna). Keep the rig near where you're working, or use the site's Wi-Fi and the rig's LAN address instead.</li>
+    <li><b>The rogue-DHCP check</b> and full MAC addresses work on the rig (it has the rights a tablet doesn't).</li>
+    <li><b>Downloads come from GitHub.</b> First install and updates need internet; once installed it works with none.</li>
+    <li><b>Passwords</b>: the hotspot password lives in <code>/etc/sonor-rig/config.json</code> on the rig. Change it there and re-run the installer to apply.</li></ul></div></div>
+  <div class="step"><h2><span class="num">i</span>Under the bonnet</h2><div class="panel"><div class="kv">
+    <div>Installer</div><div><code>install-rig.sh</code>, served from this page; re-run = update; never overwrites <code>config.json</code> (new defaults → <code>config.json.new</code>)</div>
+    <div>Hotspot</div><div>NetworkManager <code>sonor-rig-ap</code>, shared mode (DHCP + NAT out of eth0), 10.77.0.1/24</div>
+    <div>Services</div><div><code>sonor-rig-scanner</code> :8050 · <code>sonor-rig-remotes</code> :8049 · <code>sonor-rig-home</code> :80 (systemd, Restart=always, CAP_NET_BIND_SERVICE + CAP_NET_RAW)</div>
+    <div>Code</div><div><code>/opt/sonor-rig/&lt;repo&gt;</code> from <code>sonorltd/sonor-net-scanner</code>, <code>sonor-remotes</code>, <code>sonor-site-rig</code></div>
+    <div>Logs</div><div><code>journalctl -u sonor-rig-scanner -f</code> · update log <code>/var/log/sonor-rig-update.log</code></div></div></div></div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const VERSION = '1.0.0'; document.getElementById('ver').textContent = 'v' + VERSION;
+const $ = (s) => document.querySelector(s);
+const BOARDS = [
+  { id: 'pi5', name: 'Raspberry Pi 5, 4 GB', price: 55, about: 'Recommended. Fast scans, room for the Toolkit later.', dev: 'Raspberry Pi 5', psu: ['Raspberry Pi 27 W USB-C PSU (UK)', 12], kase: ['Argon NEO 5 case (with fan)', 20] },
+  { id: 'pi4', name: 'Raspberry Pi 4, 2 GB', price: 42, about: 'Fine for scanning and remotes. Use what is in the drawer.', dev: 'Raspberry Pi 4', psu: ['Raspberry Pi 15 W USB-C PSU (UK)', 9], kase: ['Official Pi 4 case + fan', 10] },
+];
+let board = BOARDS[0];
+function renderParts() {
+  const rows = [[board.name, board.price], [board.psu[0], board.psu[1]], [board.kase[0], board.kase[1]], ['SanDisk Extreme 32 GB microSD (A2)', 9], ['0.5 m Cat6 patch lead', 3], ['Label for the hotspot name + password', 0]];
+  const opt = [['FTDI USB-RS232 lead (serial control)', 15], ['CH9329 USB keyboard / mouse emulator (KVM)', 8], ['USB-C PD power bank, 20 000 mAh', 30]];
+  const tot = rows.reduce((a, r) => a + r[1], 0);
+  $('#parts').innerHTML = `<thead><tr><th>Part</th><th class="r">£</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${r[0]}</td><td class="r">${r[1] ? r[1] : '—'}</td></tr>`).join('')}${opt.map((r) => `<tr class="opt"><td>Optional: ${r[0]}</td><td class="r">${r[1]}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total (without optional)</td><td class="r">£${tot}</td></tr></tfoot>`;
+  $('#imgDev').textContent = board.dev;
+}
+$('#boards').innerHTML = BOARDS.map((b) => `<div class="board ${b === board ? 'on' : ''}" data-id="${b.id}"><h3>${b.name}</h3><div class="p">£${b.price}</div><div class="note">${b.about}</div></div>`).join('');
+document.querySelectorAll('.board').forEach((el) => el.onclick = () => { board = BOARDS.find((b) => b.id === el.dataset.id); document.querySelectorAll('.board').forEach((x) => x.classList.toggle('on', x === el)); renderParts(); });
+renderParts();
+const base = location.origin.startsWith('http') && /sonor\.co\.uk$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://apps.sonor.co.uk/sonor-site-rig/';
+$('#oneLine').textContent = `curl -fsSL "${base}install-rig.sh?v=$(date +%s)" | sudo bash`;
+$('#copyLine').onclick = async () => { try { await navigator.clipboard.writeText($('#oneLine').textContent); toast('Copied'); } catch { toast('Select the line and copy it'); } };
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+document.querySelectorAll('#tabs button').forEach((b) => b.onclick = () => { document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); for (const v of ['build', 'page', 'notes']) $('#v-' + v).hidden = b.dataset.v !== v; if (b.dataset.v === 'page' && !$('#pv').src) $('#pv').src = 'rig/preview.html'; });
+</script>
+</body></html>

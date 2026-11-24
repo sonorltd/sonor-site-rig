@@ -118,7 +118,8 @@ function renderParts() {
 $('#boards').innerHTML = BOARDS.map((b) => `<div class="board ${b === board ? 'on' : ''}" data-id="${b.id}"><h3>${b.name}</h3><div class="p">£${b.price}</div><div class="note">${b.about}</div></div>`).join('');
 document.querySelectorAll('.board').forEach((el) => el.onclick = () => { board = BOARDS.find((b) => b.id === el.dataset.id); document.querySelectorAll('.board').forEach((x) => x.classList.toggle('on', x === el)); renderParts(); });
 renderParts();
-const base = location.origin.startsWith('http') && /sonor\.co\.uk$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://apps.sonor.co.uk/sonor-site-rig/';
+// The Pi has no Sonor login, so it fetches the installer through the gateway's public download door (/dl/, allow-listed files only).
+const base = 'https://apps.sonor.co.uk/dl/sonor-site-rig/';
 $('#oneLine').textContent = `curl -fsSL "${base}install-rig.sh?v=$(date +%s)" | sudo bash`;
 $('#copyLine').onclick = async () => { try { await navigator.clipboard.writeText($('#oneLine').textContent); toast('Copied'); } catch { toast('Select the line and copy it'); } };
 function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }

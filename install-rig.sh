@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sonor Site Rig: turns a Raspberry Pi (Pi OS Lite 64-bit, Bookworm or later) into the engineers' site box.
-#   curl -fsSL "https://apps.sonor.co.uk/sonor-site-rig/install-rig.sh?v=$(date +%s)" | sudo bash
+#   curl -fsSL "https://apps.sonor.co.uk/dl/sonor-site-rig/install-rig.sh?v=$(date +%s)" | sudo bash
 # Re-running it IS the updater (pages-one-line-installer pattern). It never overwrites /etc/sonor-rig/config.json;
 # new defaults go to config.json.new.
 #
@@ -108,7 +108,7 @@ SUDO
 cat > /usr/local/bin/sonor-rig-update <<'UPD'
 #!/bin/sh
 # Runs in its own transient unit so restarting the rig's services mid-update doesn't kill the update itself.
-exec systemd-run --unit="sonor-rig-update-$(date +%s)" --collect sh -c 'curl -fsSL "https://apps.sonor.co.uk/sonor-site-rig/install-rig.sh?v=$(date +%s)" | bash > /var/log/sonor-rig-update.log 2>&1'
+exec systemd-run --unit="sonor-rig-update-$(date +%s)" --collect sh -c 'curl -fsSL "https://apps.sonor.co.uk/dl/sonor-site-rig/install-rig.sh?v=$(date +%s)" | bash > /var/log/sonor-rig-update.log 2>&1'
 UPD
 chmod 755 /usr/local/bin/sonor-rig-update; chmod 440 /etc/sudoers.d/sonor-rig
 systemctl daemon-reload

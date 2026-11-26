@@ -13,7 +13,9 @@ const VERSION = process.env.RIG_VERSION || 'dev';
 const TOOLS = [
   { id: 'scanner', name: 'Network Scanner', port: 8050, unit: 'sonor-rig-scanner', about: 'Every device on the site network, checked against Network Map' },
   { id: 'remotes', name: 'Remotes', port: 8049, unit: 'sonor-rig-remotes', about: 'TVs, receivers, Sky boxes and projectors, with a remote for each' },
+  { id: 'capture', name: 'HDMI Capture', port: 8056, unit: 'sonor-rig-capture', about: 'A matrix output as a camera: watch it here, add it to the NVR or Control4' },
 ];
+const ICON = { scanner: 'NS', remotes: 'RM', capture: 'HD' };
 const run = (c, a) => new Promise((r) => execFile(c, a, { timeout: 4000 }, (e, o) => r(e ? '' : String(o).trim())));
 const portUp = (p) => new Promise((r) => { const s = net.connect({ host: '127.0.0.1', port: p }); const t = setTimeout(() => { s.destroy(); r(false); }, 600); s.on('connect', () => { clearTimeout(t); s.destroy(); r(true); }); s.on('error', () => { clearTimeout(t); r(false); }); });
 async function status() {
@@ -47,12 +49,17 @@ footer{margin-top:26px;color:var(--label);font-size:12.5px}code{font-family:var(
 <div><span class="lbl">Tablets connected</span><b>${s.clients}</b></div>
 <div style="--c:${s.temp > 75 ? 'var(--bad)' : 'var(--edge)'}"><span class="lbl">CPU temp</span><b>${s.temp != null ? s.temp + ' °C' : '—'}</b></div>
 <div><span class="lbl">Up</span><b>${Math.floor(s.uptime / 3600)} h ${Math.floor(s.uptime / 60) % 60} m</b></div></div>
-<div class="lbl">Tools</div><div class="tools">${s.tools.map((t) => `<a class="tool" href="http://${host}:${t.port}/"><span class="ic">${t.id === 'scanner' ? 'NS' : 'RM'}</span><span><span class="n">${t.name}</span><br><span class="a"><span class="dot" style="--c:${t.up ? 'var(--ok)' : 'var(--bad)'}"></span>${t.up ? 'running' : 'not running'} · :${t.port}</span><br><span class="a">${t.about}</span></span></a>`).join('')}</div>
+<div class="lbl">Tools</div><div class="tools">${s.tools.map((t) => `<a class="tool" href="http://${host}:${t.port}/"><span class="ic">${ICON[t.id] || t.id.slice(0, 2).toUpperCase()}</span><span><span class="n">${t.name}</span><br><span class="a"><span class="dot" style="--c:${t.up ? 'var(--ok)' : 'var(--bad)'}"></span>${t.up ? 'running' : 'not running'} · :${t.port}</span><br><span class="a">${t.about}</span></span></a>`).join('')}</div>
 <footer><button id="upd">Update the rig</button> <span id="us"></span><p>Plug the rig's Ethernet into the site switch, join <b>${s.ssid}</b> on the tablet, open <code>http://10.77.0.1</code>. Updating needs internet on the site LAN and takes a couple of minutes.</p></footer></main>
 <script>document.getElementById('upd').onclick=async(e)=>{e.target.disabled=true;document.getElementById('us').textContent='Updating… the page comes back in about two minutes.';try{await fetch('/api/update',{method:'POST'})}catch{}setTimeout(()=>location.reload(),120000)};</script></body></html>`;
 module.exports = { page, status, TOOLS };
 if (require.main === module) http.createServer(async (req, res) => {
   const host = (req.headers.host || '10.77.0.1').replace(/:\d+$/, '');
+  // NVRs and the Control4 camera driver often assume port 80: pass ONVIF and the Hikvision-style API through to the HDMI capture agent
+  if (/^\/(onvif|ISAPI)\//.test(req.url)) {
+    const up = http.request({ host: '127.0.0.1', port: 8056, path: req.url, method: req.method, headers: { ...req.headers, 'x-forwarded-for': req.socket.remoteAddress } }, (r) => { res.writeHead(r.statusCode, r.headers); r.pipe(res); });
+    up.on('error', () => { res.writeHead(502); res.end('HDMI capture is not running'); }); req.pipe(up); res.on('close', () => up.destroy()); return;
+  }
   if (req.url === '/api/status') { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify(await status())); }
   if (req.url === '/api/update' && req.method === 'POST') { execFile('sudo', ['-n', '/usr/local/bin/sonor-rig-update'], () => {}); res.writeHead(202); return res.end('{"started":true}'); }
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(page(await status(), host));

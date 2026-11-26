@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Site Rig · Sonor</title><meta name="theme-color" content="#1C1C1E">
+<link rel="icon" type="image/svg+xml" href="data/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root { --bg:#1C1C1E; --card:#242426; --card2:#2C2C2E; --edge:#3A3A3C; --text:#F5F5F7; --label:#8E8E93; --dim:#636366; --gold:#ad9978; --gold2:#d9c7a1; --ok:#2fbf71; --warn:#e3a72f; --bad:#e5484d;
@@ -35,8 +36,8 @@ button.ghost { background:var(--card2); color:var(--text); border:1px solid var(
 </head>
 <body>
 <div class="site-hdr"><svg width="28" height="28" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9c7a1"/><stop offset="1" stop-color="#8a7658"/></linearGradient></defs><g fill="url(#g)"><path d="M92.02,38.41v51.4c0,2.63-2.13,4.75-4.75,4.75h-3.34c-2.62,0-4.75-2.12-4.75-4.75v-45.34c0-2.45-1.11-4.77-3.01-6.31l-25.23-20.41c-2.8-2.27-6.76-2.42-9.73-.36l-23.15,16.05.45,1.55c22.38,9.5,40.47,30.05,47.71,53.39.95,3.06-1.32,6.18-4.53,6.18h-5.36c-2.08,0-3.9-1.37-4.54-3.35-6.96-21.83-24.83-38.23-46.17-46.13-1.31-.49-2.31-1.5-2.79-2.75-.2-.51-.31-1.06-.32-1.64l-.12-9.11c-.02-1.58.75-3.06,2.05-3.96L28.74,10.74,42.11,1.45c.16-.11.32-.22.49-.31,2.35-1.4,5.22-1.5,7.64-.34.57.26,1.12.61,1.63,1.03l37.16,30.29c1.89,1.54,2.99,3.85,2.99,6.29Z"/><path d="M34.59,94.55h-5.25c-1.6,0-3.09-.81-3.97-2.15-5.47-8.37-11.98-15.35-20.72-20.32-1.5-.85-2.45-2.42-2.45-4.15v-5.58c0-3.52,3.68-5.79,6.85-4.26,12.79,6.15,23.95,16.91,29.85,29.73,1.45,3.14-.86,6.73-4.32,6.73h0Z"/><path d="M4.26,83.39c7.65-1.71,9.39,9.06,4.03,10.83-8.9,2.94-11.25-9.22-4.03-10.83Z"/></g></svg><b>SONOR</b><span class="hdr-tag">Site Rig</span><span class="v" id="ver"></span></div>
-<div class="hero"><h1>The site rig, built from this page</h1><p>A Raspberry Pi that lives in the van. Plug its Ethernet into the site switch, join its Wi-Fi on the tablet, and the tablet gets the <b>Network Scanner</b> and <b>Remotes</b> running on the site LAN, with no laptop. Everything below, from parts to the one-line install, is on this page.</p></div>
-<div class="tabs" id="tabs"><button data-v="build" class="on"><span class="n">01</span>Build &amp; install</button><button data-v="page"><span class="n">02</span>Rig page preview</button><button data-v="notes"><span class="n">03</span>Limits &amp; notes</button></div>
+<div class="hero"><h1>The site rig, built from this page</h1><p>A Raspberry Pi that lives in the van. Plug its Ethernet into the site switch, join its Wi-Fi on the tablet, and the tablet gets the <b>Network Scanner</b>, <b>Remotes</b> and <b>HDMI Capture</b> (a matrix output as a camera you can watch or add to the NVR) running on the site LAN, with no laptop. Everything below, from parts to the one-line install, is on this page.</p></div>
+<div class="tabs" id="tabs"><button data-v="build" class="on"><span class="n">01</span>Build &amp; install</button><button data-v="page"><span class="n">02</span>Rig page preview</button><button data-v="hdmi"><span class="n">03</span>HDMI capture</button><button data-v="notes"><span class="n">04</span>Limits &amp; notes</button></div>
 <main>
 <section class="view" id="v-build">
   <div class="step"><h2><span class="num">1</span>Pick your Pi</h2>
@@ -54,7 +55,7 @@ button.ghost { background:var(--card2); color:var(--text); border:1px solid var(
   <div class="step"><h2><span class="num">4</span>Install with one line</h2>
     <div class="panel"><p style="margin-top:0">Boot the Pi in the office (Ethernet or office Wi-Fi), then from the Mac Terminal: <code>ssh sonor@<span class="hn2">sonor-rig-01</span>.local</code> and paste:</p>
       <div class="cmd"><code id="oneLine"></code><button class="btn" id="copyLine">Copy</button></div>
-      <p class="note">About 3 to 6 minutes. It installs Node.js, makes the hotspot, downloads the Network Scanner and Remotes, starts them on every boot and prints the hotspot name and password at the end: <b>write them on the rig's label</b>. Running the same line again later updates everything and keeps the settings (or press <b>Update</b> on the rig page).</p></div></div>
+      <p class="note">About 3 to 6 minutes. It installs Node.js and ffmpeg, makes the hotspot, downloads the Network Scanner, Remotes and the RTSP server for HDMI Capture, starts them on every boot and prints the hotspot name and password at the end: <b>write them on the rig's label</b>. Running the same line again later updates everything and keeps the settings (or press <b>Update</b> on the rig page).</p></div></div>
   <div class="step"><h2><span class="num">5</span>Wire it</h2>
     <div class="grid2"><div class="schem"><svg viewBox="0 0 520 230" font-family="DM Mono, monospace" font-size="11">
       <rect x="190" y="70" width="140" height="90" rx="10" fill="#2c2a27" stroke="#ad9978"/><text x="260" y="112" fill="#f5f5f7" text-anchor="middle" font-size="13">Site Rig</text><text x="260" y="130" fill="#8E8E93" text-anchor="middle">Raspberry Pi</text>
@@ -68,6 +69,7 @@ button.ghost { background:var(--card2); color:var(--text); border:1px solid var(
         <tr><td>Ethernet (eth0)</td><td>Site switch, any port on the main VLAN</td><td>The rig scans and controls from inside the site LAN</td></tr>
         <tr><td>Wi-Fi (wlan0)</td><td>Its own hotspot, <code>SONOR-RIG-xxxx</code></td><td>The tablet joins it; internet passes through from eth0</td></tr>
         <tr><td>USB-C</td><td>27 W Pi PSU or a USB-C PD power bank</td><td>Under-powered Pis drop Wi-Fi</td></tr>
+        <tr class="opt"><td>USB-A (blue, USB 3)</td><td>HDMI capture dongle, its HDMI in from a spare matrix output</td><td>HDMI Capture: the output becomes a camera stream (RTSP / ONVIF)</td></tr>
         <tr class="opt"><td>USB-A</td><td>USB-RS232 lead, CH9329 KVM (later)</td><td>Serial control and keyboard / mouse injection (Engineer Toolkit)</td></tr></tbody></table>
         <p class="note">For another VLAN, plug into that VLAN's port, or add its subnet in the Scanner's box. The rig never routes the site LAN to the hotspot's clients except for internet.</p></div></div></div>
   <div class="step"><h2><span class="num">6</span>Pair the tablet</h2>
@@ -84,6 +86,21 @@ button.ghost { background:var(--card2); color:var(--text); border:1px solid var(
   <p class="note">What the tablet sees at <code>http://10.77.0.1</code> (sample data).</p>
   <div class="preview-wrap"><iframe id="pv" title="Rig page preview" loading="lazy"></iframe></div>
 </section>
+<section class="view" id="v-hdmi" hidden>
+  <div class="step"><h2><span class="num">1</span>What it does</h2><div class="panel"><p style="margin-top:0">Take any output of the video matrix into the rig and it becomes a <b>camera</b>: watch it live on the tablet, add it to a <b>Hikvision or Dahua NVR</b> as a channel (ONVIF, found by the NVR's own search) so it can be viewed remotely in Hik-Connect / DMSS, or add it in <b>Control4</b> with the Sonor Hikvision camera driver. Handy for checking matrix routing and sources from the van, or for a client's office to see what's on screen.</p>
+    <div class="kv"><div>Streams</div><div>H.264 main 1080p or 720p, 25 or 30 fps, 2 to 6 Mbps · sub 640×360, 512 kbps (phones, tiles, remote)</div><div>Addresses</div><div><code>rtsp://&lt;rig&gt;:554/Streaming/Channels/101</code> and <code>/102</code> (Hikvision-style, login needed off the hotspot)</div>
+    <div>NVR</div><div>ONVIF Profile S on port 8056, WS-Discovery, so it shows in the NVR's device search</div><div>Control4</div><div>Sonor Hikvision Camera driver, direct (the rig answers the driver's camera search) or through the NVR; Video Lost / Restored events when the output goes blank</div>
+    <div>Preview</div><div>WebRTC on the tablet (under a second behind), or one still a second</div><div>Log</div><div>Off until you start a site or trouble-watch session; kept on the rig</div></div></div></div>
+  <div class="step"><h2><span class="num">2</span>Hardware</h2><div class="grid2">
+    <div class="panel"><p style="margin-top:0"><b>Recommended: a USB 3 HDMI capture dongle with the MS2130 chip</b> (about £20; look for "USB 3.0, 1080p60, loop-out"). It plugs into a blue USB port, needs no drivers, takes up to 4K in and gives the Pi 1080p MJPEG. The loop-out lets a screen stay connected.</p>
+      <p class="note">USB 2 dongles (MS2109) work too but only at 1080p30 MJPEG / 720p raw. Avoid anything that needs a Windows driver.</p></div>
+    <div class="panel"><p style="margin-top:0"><b>Which Pi encodes it?</b> The <b>Pi 5 has no hardware H.264 encoder</b>, so the rig encodes in software: expect 1080p25 to take roughly half its CPU and 720p a quarter (estimates until measured on a rig; the HDMI Capture page shows the live figure). The <b>Pi 4</b> has the hardware encoder and barely notices. Either works; on a Pi 5 keep the fan case.</p>
+      <p class="note">Advanced, Pi 4 only: a <b>TC358743 HDMI-to-CSI board</b> (Geekworm C779, about £25) feeds the camera port with no USB at all, up to 1080p30. Install with <code>sudo RIG_HDMI_BRIDGE=tc358743 bash</code> in the one line, then reboot.</p></div></div></div>
+  <div class="step"><h2><span class="num">3</span>Wire it</h2><div class="panel"><ol class="chk"><li>A spare matrix output (or the zone you want to watch) → HDMI lead → the dongle's <b>HDMI in</b>.</li><li>Dongle → the rig's <b>blue USB 3 port</b>. The rig finds it within a few seconds; the HDMI Capture tile on the rig page turns green.</li><li>To add it to an NVR, the rig's Ethernet must be on the NVR's LAN. The HDMI Capture page lists the exact values with Copy buttons for Hikvision, Dahua, Control4 and VLC.</li></ol>
+    <p class="note"><b>HDCP:</b> sources that protect their output (Sky, Apple TV and streaming apps) may show black through any capture device. Menus, test patterns, CCTV, PCs and most matrix OSDs come through. A black output raises the <b>No picture</b> state, not an error.</p></div></div>
+  <div class="step"><h2><span class="num">4</span>The HDMI Capture page</h2><p class="note">What the tablet sees at <code>http://10.77.0.1:8056</code> (demo: an animated pattern; every so often it goes blank to show the No picture state).</p>
+    <div class="preview-wrap"><iframe id="hv" title="HDMI capture page preview" loading="lazy" style="height:900px"></iframe></div></div>
+</section>
 <section class="view" id="v-notes" hidden>
   <div class="step"><h2><span class="num">!</span>Limits</h2><div class="panel"><ul class="chk">
     <li><b>One LAN at a time.</b> The rig sees the VLAN its cable is on. Other subnets are reachable only if the site routes to them.</li>
@@ -94,23 +111,23 @@ button.ghost { background:var(--card2); color:var(--text); border:1px solid var(
   <div class="step"><h2><span class="num">i</span>Under the bonnet</h2><div class="panel"><div class="kv">
     <div>Installer</div><div><code>install-rig.sh</code>, served from this page; re-run = update; never overwrites <code>config.json</code> (new defaults → <code>config.json.new</code>)</div>
     <div>Hotspot</div><div>NetworkManager <code>sonor-rig-ap</code>, shared mode (DHCP + NAT out of eth0), 10.77.0.1/24</div>
-    <div>Services</div><div><code>sonor-rig-scanner</code> :8050 · <code>sonor-rig-remotes</code> :8049 · <code>sonor-rig-home</code> :80 (systemd, Restart=always, CAP_NET_BIND_SERVICE + CAP_NET_RAW)</div>
+    <div>Services</div><div><code>sonor-rig-scanner</code> :8050 · <code>sonor-rig-remotes</code> :8049 · <code>sonor-rig-capture</code> :8056 (+ RTSP :554, WebRTC :8889) · <code>sonor-rig-home</code> :80 (systemd, Restart=always, CAP_NET_BIND_SERVICE + CAP_NET_RAW)</div>
     <div>Code</div><div><code>/opt/sonor-rig/&lt;repo&gt;</code> from <code>sonorltd/sonor-net-scanner</code>, <code>sonor-remotes</code>, <code>sonor-site-rig</code></div>
     <div>Logs</div><div><code>journalctl -u sonor-rig-scanner -f</code> · update log <code>/var/log/sonor-rig-update.log</code></div></div></div></div>
 </section>
 </main>
 <div class="toast" id="toast"></div>
 <script>
-const VERSION = '1.0.0'; document.getElementById('ver').textContent = 'v' + VERSION;
+const VERSION = '1.1.0'; document.getElementById('ver').textContent = 'v' + VERSION;
 const $ = (s) => document.querySelector(s);
 const BOARDS = [
-  { id: 'pi5', name: 'Raspberry Pi 5, 4 GB', price: 55, about: 'Recommended. Fast scans, room for the Toolkit later.', dev: 'Raspberry Pi 5', psu: ['Raspberry Pi 27 W USB-C PSU (UK)', 12], kase: ['Argon NEO 5 case (with fan)', 20] },
-  { id: 'pi4', name: 'Raspberry Pi 4, 2 GB', price: 42, about: 'Fine for scanning and remotes. Use what is in the drawer.', dev: 'Raspberry Pi 4', psu: ['Raspberry Pi 15 W USB-C PSU (UK)', 9], kase: ['Official Pi 4 case + fan', 10] },
+  { id: 'pi5', name: 'Raspberry Pi 5, 4 GB', price: 55, about: 'Recommended. Fast scans; encodes the HDMI capture in software (no H.264 chip); 720p is the light option.', dev: 'Raspberry Pi 5', psu: ['Raspberry Pi 27 W USB-C PSU (UK)', 12], kase: ['Argon NEO 5 case (with fan)', 20] },
+  { id: 'pi4', name: 'Raspberry Pi 4, 2 GB', price: 42, about: 'Fine for scanning and remotes. Has a hardware H.264 encoder, so HDMI capture costs it little.', dev: 'Raspberry Pi 4', psu: ['Raspberry Pi 15 W USB-C PSU (UK)', 9], kase: ['Official Pi 4 case + fan', 10] },
 ];
 let board = BOARDS[0];
 function renderParts() {
   const rows = [[board.name, board.price], [board.psu[0], board.psu[1]], [board.kase[0], board.kase[1]], ['SanDisk Extreme 32 GB microSD (A2)', 9], ['0.5 m Cat6 patch lead', 3], ['Label for the hotspot name + password', 0]];
-  const opt = [['FTDI USB-RS232 lead (serial control)', 15], ['CH9329 USB keyboard / mouse emulator (KVM)', 8], ['USB-C PD power bank, 20 000 mAh', 30]];
+  const opt = [['USB 3 HDMI capture dongle, MS2130 chip, with HDMI loop-out (HDMI Capture)', 20], ['Short HDMI lead from a spare matrix output', 5], ['FTDI USB-RS232 lead (serial control)', 15], ['CH9329 USB keyboard / mouse emulator (KVM)', 8], ['USB-C PD power bank, 20 000 mAh', 30]];
   const tot = rows.reduce((a, r) => a + r[1], 0);
   $('#parts').innerHTML = `<thead><tr><th>Part</th><th class="r">£</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${r[0]}</td><td class="r">${r[1] ? r[1] : '—'}</td></tr>`).join('')}${opt.map((r) => `<tr class="opt"><td>Optional: ${r[0]}</td><td class="r">${r[1]}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total (without optional)</td><td class="r">£${tot}</td></tr></tfoot>`;
   $('#imgDev').textContent = board.dev;
@@ -123,6 +140,7 @@ const base = 'https://apps.sonor.co.uk/dl/sonor-site-rig/';
 $('#oneLine').textContent = `curl -fsSL "${base}install-rig.sh?v=$(date +%s)" | sudo bash`;
 $('#copyLine').onclick = async () => { try { await navigator.clipboard.writeText($('#oneLine').textContent); toast('Copied'); } catch { toast('Select the line and copy it'); } };
 function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
-document.querySelectorAll('#tabs button').forEach((b) => b.onclick = () => { document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); for (const v of ['build', 'page', 'notes']) $('#v-' + v).hidden = b.dataset.v !== v; if (b.dataset.v === 'page' && !$('#pv').src) $('#pv').src = 'rig/preview.html'; });
+document.querySelectorAll('#tabs button').forEach((b) => b.onclick = () => { document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); for (const v of ['build', 'page', 'hdmi', 'notes']) $('#v-' + v).hidden = b.dataset.v !== v; if (b.dataset.v === 'page' && !$('#pv').src) $('#pv').src = 'rig/preview.html'; if (b.dataset.v === 'hdmi' && !$('#hv').src) $('#hv').src = 'rig/capture/www/index.html?demo=1'; });
+{ const h = location.hash.slice(1); const b = document.querySelector(`#tabs button[data-v="${h}"]`); if (b) b.click(); }
 </script>
 </body></html>

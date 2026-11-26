@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" data-theme="graphite">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HDMI Capture · Sonor Site Rig</title><meta name="theme-color" content="#1C1C1E">
+<link rel="icon" type="image/svg+xml" href="../../../data/favicon.svg">
+<style>
+:root{--bg:#1C1C1E;--card:#242426;--card2:#2C2C2E;--edge:#3A3A3C;--text:#F5F5F7;--label:#8E8E93;--gold:#ad9978;--gold2:#d9c7a1;--ok:#2fbf71;--bad:#e5484d;--warn:#e3a72f;--video:#78ba57;--mono:"DM Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#2a2724 0,transparent 60%),var(--bg);color:var(--text);font:15px/1.45 "DM Sans",system-ui,sans-serif;min-height:100vh}
+header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--edge)}header b{letter-spacing:.32em;font-weight:600}header .tag{font:11px var(--mono);letter-spacing:.2em;color:var(--gold);text-transform:uppercase;border-left:1px solid var(--edge);padding-left:14px}
+header .r{margin-left:auto;display:flex;gap:10px;align-items:center;font:11px var(--mono);color:var(--label)}header a{color:var(--label)}
+.pill{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:99px;border:1px solid var(--edge)}.pill.log{color:#1c1c1e;background:var(--warn);border-color:var(--warn)}.pill.demo{color:var(--gold2);border-color:var(--gold)}
+main{max-width:1180px;margin:0 auto;padding:18px 20px 60px}.lbl{font:500 10.5px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--label)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:10px 0 18px}.stats div{background:var(--card);border:1px solid var(--edge);border-left:4px solid var(--c,var(--edge));border-radius:6px;padding:9px 12px;min-width:0}.stats b{display:block;font:500 15px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stats small{color:var(--label);font-size:12px}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 16px;margin-bottom:16px}.card h2{font-size:15px;margin:0 0 10px;display:flex;gap:10px;align-items:center}.card h2 .lbl{margin-left:auto}
+.view{position:relative;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;border:1px solid #000}.view iframe,.view img,.view canvas{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain}
+.view .over{position:absolute;left:10px;top:10px;font:11px var(--mono);background:rgba(0,0,0,.55);padding:4px 8px;border-radius:6px}.view .msg{position:absolute;inset:0;display:grid;place-items:center;color:var(--label);text-align:center;padding:20px}
+.seg{display:inline-flex;border:1px solid var(--edge);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0;background:var(--card2)}.seg button.on{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1c1c1e}
+button,select,input{font:12px var(--mono);color:var(--text);background:var(--card2);border:1px solid var(--edge);border-radius:6px;padding:8px 10px}button{cursor:pointer;letter-spacing:.06em}button.go{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1c1c1e;border:0}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.form{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;align-items:center}.form select,.form input{width:100%}@media(max-width:520px){.form{grid-template-columns:1fr}}
+.copy{display:flex;gap:6px;margin:5px 0}.copy code{flex:1;min-width:0;font:12px var(--mono);background:#141416;border:1px solid var(--edge);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:nowrap;color:#e9e2d4}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tabs button.on{border-color:var(--gold);color:var(--gold2)}
+ol{padding-left:20px;margin:6px 0}ol li{margin:5px 0}.note{color:var(--label);font-size:13px}.note b{color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px;border-bottom:1px solid #2f2f31;text-align:left}th{font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--label)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c,var(--label));margin-right:6px}.lines{font:12px var(--mono);max-height:220px;overflow:auto;white-space:pre-wrap;color:#cfc8bb}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--edge);padding:9px 14px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header><svg width="28" height="28" viewBox="0 0 96 96"><g fill="#ad9978"><path d="M92.02,38.41v51.4c0,2.63-2.13,4.75-4.75,4.75h-3.34c-2.62,0-4.75-2.12-4.75-4.75v-45.34c0-2.45-1.11-4.77-3.01-6.31l-25.23-20.41c-2.8-2.27-6.76-2.42-9.73-.36l-23.15,16.05.45,1.55c22.38,9.5,40.47,30.05,47.71,53.39.95,3.06-1.32,6.18-4.53,6.18h-5.36c-2.08,0-3.9-1.37-4.54-3.35-6.96-21.83-24.83-38.23-46.17-46.13-1.31-.49-2.31-1.5-2.79-2.75-.2-.51-.31-1.06-.32-1.64l-.12-9.11c-.02-1.58.75-3.06,2.05-3.96L28.74,10.74,42.11,1.45c.16-.11.32-.22.49-.31,2.35-1.4,5.22-1.5,7.64-.34.57.26,1.12.61,1.63,1.03l37.16,30.29c1.89,1.54,2.99,3.85,2.99,6.29Z"/><path d="M34.59,94.55h-5.25c-1.6,0-3.09-.81-3.97-2.15-5.47-8.37-11.98-15.35-20.72-20.32-1.5-.85-2.45-2.42-2.45-4.15v-5.58c0-3.52,3.68-5.79,6.85-4.26,12.79,6.15,23.95,16.91,29.85,29.73,1.45,3.14-.86,6.73-4.32,6.73h0Z"/><path d="M4.26,83.39c7.65-1.71,9.39,9.06,4.03,10.83-8.9,2.94-11.25-9.22-4.03-10.83Z"/></g></svg>
+<b>SONOR</b><span class="tag">HDMI Capture</span><span class="r"><span class="pill demo" id="demoPill" hidden>Demo</span><span class="pill log" id="logPill" hidden>Logging</span><a id="home" href="/">Rig page</a><span id="ver"></span></span></header>
+<main>
+<div class="stats" id="stats"></div>
+<div class="grid">
+<div>
+  <div class="card"><h2>Picture <span class="seg" id="srcSeg"><button data-s="sub" class="on">Sub (light)</button><button data-s="main">Main</button><button data-s="still">Stills</button></span></h2>
+    <div class="view" id="view"><div class="msg">Starting…</div></div>
+    <p class="note" style="margin:8px 0 0">Live video (WebRTC) needs the tablet on the rig hotspot or the same LAN. <b>Stills</b> refreshes a picture every second and works anywhere the page does.</p></div>
+  <div class="card"><h2>Add it as a camera</h2>
+    <div class="tabs" id="howTabs"><button data-h="hik" class="on">Hikvision NVR</button><button data-h="dahua">Dahua NVR</button><button data-h="c4">Control4</button><button data-h="player">VLC / any player</button></div>
+    <div id="how"></div></div>
+</div>
+<div>
+  <div class="card"><h2>Settings <span class="lbl" id="lockNote"></span></h2>
+    <div class="form" id="form">
+      <label class="lbl" for="f-name">Camera name</label><input id="f-name" maxlength="60">
+      <label class="lbl" for="f-device">HDMI input</label><select id="f-device"></select>
+      <label class="lbl" for="f-input">Capture format</label><select id="f-input"></select>
+      <label class="lbl" for="f-size">Stream size</label><select id="f-size"></select>
+      <label class="lbl" for="f-fps">Frame rate</label><select id="f-fps"></select>
+      <label class="lbl" for="f-kbps">Main bitrate</label><select id="f-kbps"></select>
+      <label class="lbl" for="f-sub">Sub stream</label><select id="f-sub"><option value="true">On · 640×360, 512 kbps</option><option value="false">Off</option></select>
+      <label class="lbl" for="f-encoder">Encoder</label><select id="f-encoder"></select>
+      <label class="lbl" for="f-audio">Audio</label><select id="f-audio"></select>
+      <label class="lbl" for="f-onvif">ONVIF</label><select id="f-onvif"><option value="true">On · NVRs can find and add it</option><option value="false">Off</option></select>
+    </div>
+    <div class="row"><button class="go" id="save">Save and restart stream</button><button id="newpw">New password</button><button id="rescan">Look for dongles</button></div>
+    <p class="note" id="cpuNote"></p></div>
+  <div class="card"><h2>Site log <span class="lbl">on the rig only</span></h2>
+    <div id="logBox"></div></div>
+  <div class="card"><h2>Who is watching</h2><div id="viewers"></div></div>
+</div></div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const $ = (s) => document.querySelector(s); const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const Q = new URLSearchParams(location.search);
+const DEMO = Q.has('demo') || location.protocol === 'file:' || /sonor\.co\.uk$|github\.io$/.test(location.hostname);
+let S = null, src = 'sub', how = 'hik', formDirty = false, stillTimer = null;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+async function copy(v) { try { await navigator.clipboard.writeText(v); toast('Copied'); } catch { toast('Select it and copy'); } }
+
+// ── demo data (the build page shows this page on apps.sonor.co.uk, with no rig) ──
+function demoStatus() {
+  const t = Date.now(); const flat = Math.floor(t / 20000) % 6 === 5;
+  return { version: '1.1.0', board: 'Raspberry Pi 5 Model B Rev 1.0', name: 'Site Rig 3F2A HDMI', canEdit: true, running: true, since: t - 3600e3, rtspServer: true,
+    settings: { name: 'Site Rig 3F2A HDMI', device: 'auto', input: 'auto', size: '1920x1080', fps: 25, kbps: 4000, sub: true, encoder: 'auto', audio: 'off', user: 'admin', pass: 'k4Rt9wQe2x7a', onvif: true, rtspPort: 554 },
+    device: { name: 'USB3 Video: USB3 Video', path: '/dev/video0', kind: 'usb' }, input: { fmt: 'MJPG', pix: 'mjpeg', w: 1920, h: 1080, fps: 30 }, encoder: 'libx264',
+    signal: { state: flat ? 'flat' : 'picture', since: t - 12000, low: flat ? 16 : 31, high: flat ? 18 : 222 }, restarts: 0, error: '', cpu: 46, temp: 58.4,
+    viewers: [{ kind: 'RTSP', remote: '192.168.1.64', stream: 'main', path: 'Streaming/Channels/101' }, { kind: 'RTSP', remote: '192.168.1.20', stream: 'sub', path: 'Streaming/Channels/102' }, { kind: 'WebRTC', remote: '10.77.0.23', stream: 'sub' }],
+    choices: { devices: [{ value: 'auto', label: 'Automatic (first one found)' }, { value: 'USB3 Video: USB3 Video', label: 'USB3 Video: USB3 Video · /dev/video0' }, { value: 'test', label: 'Test pattern (no dongle)' }],
+      inputs: [{ value: 'auto', label: 'Automatic' }, { value: 'mjpeg', label: 'MJPEG (USB 2 dongles at 1080p)' }, { value: 'yuyv422', label: 'yuyv422' }], sizes: ['1920x1080', '1280x720'], fps: [25, 30], kbps: [2000, 3000, 4000, 6000],
+      encoders: [{ value: 'auto', label: 'Automatic' }, { value: 'software', label: 'Software (libx264)' }], audio: [{ value: 'off', label: 'No audio' }, { value: 'plughw:CARD=MS2130,DEV=0', label: 'USB3 Video (USB Audio)' }] },
+    net: { lan: '192.168.1.188', ap: '10.77.0.1', here: '10.77.0.1' },
+    urls: { main: 'rtsp://admin:k4Rt9wQe2x7a@10.77.0.1:554/Streaming/Channels/101', sub: 'rtsp://admin:k4Rt9wQe2x7a@10.77.0.1:554/Streaming/Channels/102', onvif: 'http://10.77.0.1:8056/onvif/device_service', lanMain: 'rtsp://192.168.1.188:554/Streaming/Channels/101' },
+    log: demoLog };
+}
+let demoLog = { on: false, app: 'site-rig', watchDays: [1, 3, 7, 14, 30], siteHours: 12 };
+const demoAlerts = [{ t: new Date(Date.now() - 4 * 60e3).toISOString(), level: 'warn', text: 'No picture on the HDMI input (flat / black screen)' }, { t: new Date(Date.now() - 3 * 60e3).toISOString(), kind: 'source', text: 'Picture back' }];
+
+async function api(p, body) {
+  if (DEMO) { if (p === '/api/log/session' && body) { demoLog = body.action === 'start' ? { on: true, name: body.name, mode: body.mode, started: new Date().toISOString(), until: new Date(Date.now() + (body.mode === 'watch' ? body.days * 864e5 : 432e5)).toISOString(), bytes: 18432, lines: 96 } : { on: false, watchDays: [1, 3, 7, 14, 30] }; return demoLog; }
+    if (p === '/api/settings') { toast('Demo: settings not saved'); return { status: demoStatus() }; } return demoStatus(); }
+  const r = await fetch(p, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  if (r.status === 401) { toast('Log in with the camera login to change this'); throw new Error('401'); }
+  return r.json();
+}
+
+function stats() {
+  const s = S; const sig = s.signal || {}; const sigC = { picture: 'var(--ok)', flat: 'var(--warn)', none: 'var(--bad)', starting: 'var(--edge)' }[sig.state];
+  const sigT = { picture: 'Picture', flat: 'No picture (flat)', none: s.device ? 'No signal' : 'No dongle', starting: 'Starting' }[sig.state] || sig.state;
+  const up = s.running && s.since ? Math.round((Date.now() - s.since) / 60000) : null;
+  $('#stats').innerHTML = [
+    [sigT, 'HDMI signal', sigC, sig.high != null ? `levels ${sig.low}–${sig.high}` : ''],
+    [s.input ? `${s.input.w}×${s.input.h} ${s.input.fmt}` : (s.device && s.device.kind === 'test' ? 'Test pattern' : '—'), 'Input', 'var(--video)', s.device ? s.device.name : 'plug in the capture dongle'],
+    [`${s.settings.size.split('x')[1]}p · ${s.settings.fps} fps`, 'Main stream', s.running ? 'var(--ok)' : 'var(--bad)', `${s.settings.kbps / 1000} Mbps H.264${s.settings.sub ? ' + sub' : ''}`],
+    [s.encoder === 'h264_v4l2m2m' ? 'Pi hardware' : s.encoder ? 'Software x264' : '—', 'Encoder', 'var(--edge)', (s.board || '').replace(/ Model.*/, '')],
+    [s.cpu != null ? `${s.cpu}%` : '—', 'Rig CPU', s.cpu > 85 ? 'var(--bad)' : s.cpu > 70 ? 'var(--warn)' : 'var(--edge)', s.temp != null ? `${s.temp} °C` : ''],
+    [String((s.viewers || []).length), 'Watching', 'var(--gold)', up != null ? `stream up ${up >= 60 ? Math.floor(up / 60) + ' h ' : ''}${up % 60} m` : (s.error || '')],
+  ].map(([v, l, c, n]) => `<div style="--c:${c}"><span class="lbl">${l}</span><b title="${esc(v)}">${esc(v)}</b><small>${esc(n)}</small></div>`).join('');
+  $('#logPill').hidden = !(s.log && s.log.on); $('#demoPill').hidden = !DEMO; $('#ver').textContent = 'v' + s.version;
+  $('#cpuNote').innerHTML = s.encoder === 'libx264' ? 'The Pi 5 has no hardware H.264 encoder, so the rig encodes in software. If <b>Rig CPU</b> sits above 80 %, drop to 720p or 2 Mbps.' : '';
+  $('#lockNote').textContent = s.canEdit ? '' : 'log in to change';
+}
+
+function view() {
+  clearInterval(stillTimer); const v = $('#view');
+  if (DEMO) { if (!v.querySelector('canvas')) { v.innerHTML = '<canvas width="960" height="540"></canvas><span class="over" id="ov"></span>'; demoDraw(v.querySelector('canvas')); } $('#ov').textContent = src === 'main' ? 'Main · 1920×1080 · WebRTC' : src === 'sub' ? 'Sub · 640×360 · WebRTC' : 'Stills · 1/s'; return; }
+  if (!S.running) { v.innerHTML = `<div class="msg">${esc(S.error || 'Stream not running')}</div>`; return; }
+  if (src === 'still') { const set = () => { v.innerHTML = `<img alt="HDMI input" src="/api/snapshot.jpg?sub=0&t=${Date.now()}"><span class="over">Stills · 1/s</span>`; }; set(); stillTimer = setInterval(() => { const i = v.querySelector('img'); if (i) i.src = `/api/snapshot.jpg?sub=0&t=${Date.now()}`; }, 1000); return; }
+  const u = `http://${location.hostname}:8889/Streaming/Channels/${src === 'main' || !S.settings.sub ? '101' : '102'}/?controls=false&muted=true&autoplay=true`;
+  v.innerHTML = `<iframe src="${u}" allow="autoplay; fullscreen" title="Live HDMI"></iframe><span class="over">${src === 'main' ? 'Main' : 'Sub'} · WebRTC</span>`;
+}
+function demoDraw(c) {   // colour bars + clock; goes flat every so often to show the "no picture" state
+  const g = c.getContext('2d'); const bars = ['#c0c0c0', '#c0c000', '#00c0c0', '#00c000', '#c000c0', '#c00000', '#0000c0'];
+  (function f() { if (!c.isConnected) return; const flat = S && S.signal.state === 'flat';
+    if (flat) { g.fillStyle = '#0a0a0a'; g.fillRect(0, 0, 960, 540); g.fillStyle = '#555'; g.font = '28px DM Mono, monospace'; g.textAlign = 'center'; g.fillText('No picture from the matrix', 480, 280); }
+    else { bars.forEach((b, i) => { g.fillStyle = b; g.fillRect(i * 960 / 7, 0, 960 / 7 + 1, 380); }); g.fillStyle = '#111'; g.fillRect(0, 380, 960, 160); g.fillStyle = '#ad9978'; g.font = '600 34px DM Sans, sans-serif'; g.textAlign = 'left'; g.fillText('MATRIX OUT 4 · LIVING ROOM', 34, 440);
+      g.font = '28px DM Mono, monospace'; g.fillStyle = '#eee'; g.fillText(new Date().toLocaleTimeString(), 34, 495); const x = (Date.now() / 8) % 960; g.fillStyle = '#fff'; g.fillRect(x, 520, 40, 8); }
+    requestAnimationFrame(f); })();
+}
+
+function cp(label, val, mask) { if (val == null) return ''; return `<div class="lbl">${label}</div><div class="copy"><code>${esc(mask ? val.replace(/:\/\/[^@]*@/, '://') : val)}</code><button data-copy="${esc(val)}">Copy</button></div>`; }
+function howTo() {
+  const s = S; const ip = s.net.lan || s.net.here; const u = s.settings.user; const pw = s.settings.pass;
+  const rtsp = (ch) => `rtsp://${ip}:${s.settings.rtspPort}/Streaming/Channels/${ch}`;
+  const login = `${cp('User', u)}${cp('Password', pw)}`;
+  const H = {
+    hik: `<ol><li>Plug the rig's Ethernet into the <b>same LAN as the NVR</b> (the rig's LAN address is <b>${esc(s.net.lan || 'not plugged in')}</b>).</li><li>NVR → <b>Camera Management → IP Camera → Add</b>. Choose <b>Online Device List</b>; the rig shows up as <b>${esc(s.name)}</b> (ONVIF). Or add it by hand:</li></ol>
+      <table><tr><th>Field</th><th>Value</th></tr><tr><td>Protocol</td><td>ONVIF</td></tr><tr><td>IP address</td><td>${esc(ip)}</td></tr><tr><td>Management port</td><td>8056</td></tr><tr><td>Transfer protocol</td><td>TCP</td></tr></table>${login}
+      <p class="note">If the NVR shows "Offline (parameter error)", set its time from NTP and add it again: ONVIF logins are refused when clocks are far apart.</p>`,
+    dahua: `<ol><li>Rig Ethernet on the NVR's LAN (rig: <b>${esc(s.net.lan || 'not plugged in')}</b>).</li><li>NVR → <b>Camera → Camera List → Add</b> → <b>Device Search</b>: tick <b>${esc(s.name)}</b> (manufacturer ONVIF) and Add. Or <b>Manual Add</b>:</li></ol>
+      <table><tr><td>Manufacturer</td><td>ONVIF</td></tr><tr><td>IP address</td><td>${esc(ip)}</td></tr><tr><td>Port</td><td>8056</td></tr><tr><td>Remote channel</td><td>1</td></tr></table>${login}`,
+    c4: `<p style="margin-top:0"><b>Through the NVR</b> (best for remote viewing): add the rig to the NVR as above, then in Composer add <b>Sonor Hikvision Camera</b> (or Dahua), <b>Connect To = Through an NVR</b>, and pick the NVR and the rig's channel from the dropdowns.</p>
+      <p><b>Direct, no NVR</b>: add <b>Sonor Hikvision Camera</b>, Connect To = <b>Camera directly</b>, press <b>Find Cameras on Network</b> and pick <b>Sonor Site Rig HDMI</b> (it answers the Hikvision search). The driver fills the address and port 8056; enter the login:</p>${login}
+      <p class="note">Video Lost / Restored events fire in Control4 when the matrix output goes blank and comes back.</p>`,
+    player: `${cp('Main (1080p)', rtsp('101'))}${s.settings.sub ? cp('Sub (360p)', rtsp('102')) : ''}${cp('ONVIF', `http://${ip}:8056/onvif/device_service`)}${login}<p class="note">VLC: Media → Open Network Stream, paste the address, enter the login when asked. From the rig hotspot use ${esc(s.net.ap || '10.77.0.1')} in place of the LAN address.</p>`,
+  };
+  $('#how').innerHTML = H[how];
+}
+function fill(sel, list, val) { const el = $(sel); const opts = list.map((o) => (typeof o === 'object' ? o : { value: o, label: String(o) })); el.innerHTML = opts.map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join(''); el.value = String(val); if (el.value !== String(val) && opts[0]) el.value = opts[0].value; }
+function form() {
+  if (formDirty) return; const s = S.settings; const c = S.choices;
+  $('#f-name').value = s.name; fill('#f-device', c.devices, s.device); fill('#f-input', c.inputs, s.input);
+  fill('#f-size', c.sizes.map((x) => ({ value: x, label: x === '1920x1080' ? '1080p (1920×1080)' : '720p (1280×720)' })), s.size);
+  fill('#f-fps', c.fps.map((x) => ({ value: x, label: x + ' fps' })), s.fps); fill('#f-kbps', c.kbps.map((x) => ({ value: x, label: x / 1000 + ' Mbps' })), s.kbps);
+  fill('#f-encoder', c.encoders, s.encoder); fill('#f-audio', c.audio, s.audio); $('#f-sub').value = String(s.sub); $('#f-onvif').value = String(s.onvif !== false);
+  document.querySelectorAll('#form select,#form input').forEach((e) => (e.disabled = !S.canEdit));
+}
+async function logBox() {
+  const l = S.log || {}; let alerts = [];
+  if (!DEMO && !l.unavailable) { try { alerts = (await (await fetch('/api/log/alerts?limit=8')).json()).alerts || []; } catch { /* */ } } else alerts = demoAlerts;
+  if (l.unavailable) { $('#logBox').innerHTML = '<p class="note">Logging module not on this rig yet: press Update on the rig page.</p>'; return; }
+  const al = alerts.slice(-6).reverse().map((a) => `${a.t.slice(11, 16)}  ${a.text || a.state || ''}`).join('\n') || 'Nothing yet.';
+  $('#logBox').innerHTML = l.on
+    ? `<p style="margin-top:0"><span class="dot" style="--c:var(--warn)"></span><b>${esc(l.name)}</b> · ${l.mode === 'watch' ? 'trouble watch' : 'site visit'} until ${new Date(l.until).toLocaleString()} · ${Math.round((l.bytes || 0) / 1024)} KB</p><div class="row"><button id="logStop">Stop logging</button><a href="/api/log/download?gz=1"><button>Download</button></a></div><div class="lbl">Recent</div><div class="lines">${esc(al)}</div>`
+    : `<p class="note" style="margin-top:0">Off. Logs signal drops, encoder restarts, who connects and a one-minute summary, kept on the rig only.</p><div class="row"><select id="logMode"><option value="site">On site today (stops after 12 h)</option>${(l.watchDays || [1, 3, 7, 14, 30]).map((d) => `<option value="${d}">Trouble watch, ${d} day${d > 1 ? 's' : ''}</option>`).join('')}</select><button class="go" id="logStart">Start logging</button></div><div class="lbl">Recent alerts</div><div class="lines">${esc(al)}</div>`;
+  const st = $('#logStart'); if (st) st.onclick = async () => { const m = $('#logMode').value; await api('/api/log/session', m === 'site' ? { action: 'start', mode: 'site', name: 'HDMI capture' } : { action: 'start', mode: 'watch', days: +m, name: 'HDMI capture watch' }); refresh(); };
+  const sp = $('#logStop'); if (sp) sp.onclick = async () => { await api('/api/log/session', { action: 'stop' }); refresh(); };
+}
+function viewers() {
+  const v = S.viewers || [];
+  $('#viewers').innerHTML = v.length ? `<table><tr><th>From</th><th>How</th><th>Stream</th></tr>${v.map((x) => `<tr><td>${esc(x.remote)}</td><td>${esc(x.kind)}</td><td>${esc(x.stream)}</td></tr>`).join('')}</table>` : '<p class="note" style="margin:0">Nobody yet. An NVR that has added the rig shows here once it is recording.</p>';
+}
+async function refresh(first) {
+  try { S = await api('/api/status'); } catch { return; }
+  stats(); form(); viewers(); logBox(); if (first) { view(); howTo(); }
+  if (!first && !DEMO && S.running !== refresh.was) view(); refresh.was = S.running;
+}
+document.querySelectorAll('#srcSeg button').forEach((b) => (b.onclick = () => { src = b.dataset.s; document.querySelectorAll('#srcSeg button').forEach((x) => x.classList.toggle('on', x === b)); view(); }));
+document.querySelectorAll('#howTabs button').forEach((b) => (b.onclick = () => { how = b.dataset.h; document.querySelectorAll('#howTabs button').forEach((x) => x.classList.toggle('on', x === b)); howTo(); }));
+document.addEventListener('click', (e) => { const c = e.target.closest('[data-copy]'); if (c) copy(c.dataset.copy); });
+$('#form').addEventListener('input', () => (formDirty = true));
+$('#save').onclick = async () => {
+  const b = { name: $('#f-name').value, device: $('#f-device').value, input: $('#f-input').value, size: $('#f-size').value, fps: +$('#f-fps').value, kbps: +$('#f-kbps').value, sub: $('#f-sub').value === 'true', encoder: $('#f-encoder').value, audio: $('#f-audio').value, onvif: $('#f-onvif').value === 'true' };
+  try { const r = await api('/api/settings', b); formDirty = false; if (r.status) { S = r.status; howTo(); } toast(r.changed && r.changed.length ? 'Saved: the stream restarts in a few seconds' : 'Nothing changed'); setTimeout(() => { view(); refresh(); }, 4000); } catch { /* toast shown */ }
+};
+$('#newpw').onclick = async () => { if (!confirmNew()) return; try { await api('/api/settings', { newPassword: true }); formDirty = false; await refresh(); howTo(); toast('New password: change it on the NVR too'); } catch { /* */ } };
+function confirmNew() { const b = $('#newpw'); if (b.dataset.arm) { delete b.dataset.arm; b.textContent = 'New password'; return true; } b.dataset.arm = 1; b.textContent = 'Press again to confirm'; setTimeout(() => { delete b.dataset.arm; b.textContent = 'New password'; }, 4000); return false; }
+$('#rescan').onclick = async () => { if (!DEMO) await fetch('/api/rescan'); formDirty = false; refresh(); toast('Looked for capture dongles'); };
+if (DEMO) $('#home').href = '../../index.html';
+refresh(true); setInterval(refresh, DEMO ? 2000 : 4000);
+</script>
+</body></html>

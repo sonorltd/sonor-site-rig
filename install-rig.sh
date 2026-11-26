@@ -9,9 +9,13 @@
 #   - eth0 = plug into the site switch (DHCP client): the rig sees the site LAN, the tablet sees the rig
 #   - Network Scanner agent  :8050   (sonor-net-scanner)
 #   - Remotes bridge         :8049   (sonor-remotes)
+#   - HDMI capture           :8056   (sonor-rig-capture: USB HDMI dongle → RTSP :554 + ONVIF + WebRTC preview; NVR / Control4 camera)
 #   - Rig home page          :80     (status, links, update button)
+# Optional, for a TC358743 HDMI-to-CSI board instead of a USB dongle (Pi 4; reboot after):
+#   curl -fsSL "https://apps.sonor.co.uk/dl/sonor-site-rig/install-rig.sh?v=$(date +%s)" | sudo RIG_HDMI_BRIDGE=tc358743 bash
 set -euo pipefail
-RIG_VERSION=1.0.1
+RIG_VERSION=1.1.0
+MEDIAMTX_VERSION=v1.21.4
 BASE=/opt/sonor-rig
 CFG=/etc/sonor-rig
 BRANCH=main
@@ -24,6 +28,8 @@ say() { printf '\n\033[1;33m▸ %s\033[0m\n' "$*"; }
 say "Packages"
 apt-get update -qq
 apt-get install -y -qq curl ca-certificates tar network-manager iw >/dev/null
+# HDMI capture: ffmpeg (capture + H.264), v4l-utils (find the dongle, TC358743 EDID), alsa-utils (dongle audio)
+apt-get install -y -qq ffmpeg v4l-utils alsa-utils >/dev/null || echo "ffmpeg / v4l-utils could not be installed: HDMI capture will not start"
 if ! command -v node >/dev/null || [ "$(node -e 'console.log(process.versions.node.split(".")[0])')" -lt 18 ]; then
   apt-get install -y -qq nodejs >/dev/null || true
 fi
@@ -73,10 +79,26 @@ fetch() { # $1 repo  → $BASE/$1 (keeps that app's own data/config files)
 }
 for a in "${APPS[@]}"; do fetch "${a%%:*}"; done
 fetch sonor-site-rig
+
+say "RTSP server (mediamtx $MEDIAMTX_VERSION)"
+case "$(uname -m)" in aarch64|arm64) MTX_ARCH=arm64 ;; armv7l) MTX_ARCH=armv7 ;; armv6l) MTX_ARCH=armv6 ;; x86_64) MTX_ARCH=amd64 ;; *) MTX_ARCH="" ;; esac
+if [ -n "$MTX_ARCH" ] && [ "$(cat "$BASE/mediamtx/VERSION" 2>/dev/null)" != "$MEDIAMTX_VERSION" ]; then
+  tmp=$(mktemp -d)
+  if curl -fsSL "https://github.com/bluenviron/mediamtx/releases/download/$MEDIAMTX_VERSION/mediamtx_${MEDIAMTX_VERSION}_linux_${MTX_ARCH}.tar.gz" | tar -xz -C "$tmp"; then
+    mkdir -p "$BASE/mediamtx"; install -m 755 "$tmp/mediamtx" "$BASE/mediamtx/mediamtx"; echo "$MEDIAMTX_VERSION" > "$BASE/mediamtx/VERSION"; echo "  mediamtx $MEDIAMTX_VERSION ✓"
+  else echo "  mediamtx could not be downloaded: HDMI capture has no RTSP server until the next update"; fi
+  rm -rf "$tmp"
+else echo "  mediamtx ${MEDIAMTX_VERSION} already here"; fi
+if [ "${RIG_HDMI_BRIDGE:-}" = "tc358743" ]; then
+  BOOTCFG=/boot/firmware/config.txt; [ -f "$BOOTCFG" ] || BOOTCFG=/boot/config.txt
+  grep -q '^dtoverlay=tc358743' "$BOOTCFG" || { printf '\n# Sonor Site Rig: HDMI-to-CSI bridge\ndtoverlay=tc358743\n' >> "$BOOTCFG"; echo "  TC358743 overlay added to $BOOTCFG: reboot the Pi once the install finishes"; }
+fi
 id -u sonorrig >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin sonorrig
 getent group wireshark >/dev/null 2>&1 && usermod -aG wireshark sonorrig
+usermod -aG video,audio sonorrig 2>/dev/null || true
+mkdir -p /var/lib/sonor-rig/capture
 DC=$(command -v dumpcap || true); [ -n "$DC" ] && setcap cap_net_raw,cap_net_admin=eip "$DC" 2>/dev/null || true
-chown -R sonorrig:sonorrig "$BASE"
+chown -R sonorrig:sonorrig "$BASE" /var/lib/sonor-rig
 
 unit() { # name port dir entry extra-env
   cat > "/etc/systemd/system/$1.service" <<UNIT
@@ -103,6 +125,11 @@ UNIT
 Environment=SKY_RELAY_NAME=$(j name)"
 [ -f "$BASE/sonor-site-rig/rig/server.js" ] && unit sonor-rig-home 80 "$BASE/sonor-site-rig/rig" server.js "Environment=RIG_CONFIG=$CFG/config.json
 Environment=RIG_VERSION=$RIG_VERSION"
+ [ -f "$BASE/sonor-site-rig/rig/capture/capture.js" ] && unit sonor-rig-capture 8056 "$BASE/sonor-site-rig/rig/capture" capture.js "Environment=CAPTURE_DATA=/var/lib/sonor-rig/capture
+Environment=RIG_CONFIG=$CFG/config.json
+Environment=MEDIAMTX=$BASE/mediamtx/mediamtx
+Environment=RIG_VERSION=$RIG_VERSION
+SupplementaryGroups=video audio"
 mkdir -p "$CFG/scans"; chown -R sonorrig:sonorrig "$CFG/scans"
 # old single-app installs on this Pi make way for the rig's units
 for old in sonor-sky-remote sonor-remotes; do systemctl disable --now "$old.service" 2>/dev/null || true; done
@@ -117,14 +144,14 @@ exec systemd-run --unit="sonor-rig-update-$(date +%s)" --collect sh -c 'curl -fs
 UPD
 chmod 755 /usr/local/bin/sonor-rig-update; chmod 440 /etc/sudoers.d/sonor-rig
 systemctl daemon-reload
-for s in sonor-rig-scanner sonor-rig-remotes sonor-rig-home; do [ -f "/etc/systemd/system/$s.service" ] && systemctl enable --now "$s" >/dev/null && systemctl restart "$s" || true; done
+for s in sonor-rig-scanner sonor-rig-remotes sonor-rig-capture sonor-rig-home; do [ -f "/etc/systemd/system/$s.service" ] && systemctl enable --now "$s" >/dev/null && systemctl restart "$s" || true; done
 
 say "Done: Sonor Site Rig $RIG_VERSION"
 LAN=$(ip -4 -o addr show eth0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 || true)
 cat <<DONE
   Hotspot:   $SSID   password: $PSK
   Rig page:  http://10.77.0.1      (from the tablet on the hotspot)
-  Site LAN:  ${LAN:-eth0 not connected}  (scanner :8050, remotes :8049)
-  Services:  $(for s in sonor-rig-scanner sonor-rig-remotes sonor-rig-home; do printf '%s=%s ' "$s" "$(systemctl is-active $s 2>/dev/null || echo missing)"; done)
+  Site LAN:  ${LAN:-eth0 not connected}  (scanner :8050, remotes :8049, HDMI capture :8056 · RTSP :554)
+  Services:  $(for s in sonor-rig-scanner sonor-rig-remotes sonor-rig-capture sonor-rig-home; do printf '%s=%s ' "$s" "$(systemctl is-active $s 2>/dev/null || echo missing)"; done)
   Update:    run the same one line again, or press Update on the rig page.
 DONE
